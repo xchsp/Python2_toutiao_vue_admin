@@ -7,7 +7,7 @@
       label="日期"
       width="180">
       <template slot-scope="scope">
-        <span style="margin-left: 10px">{{ scope.row.created }}</span>
+        <span style="margin-left: 10px">{{ scope.row.created | dataFormat}}</span>
       </template>
     </el-table-column>
     <el-table-column
@@ -69,7 +69,18 @@
             pageSize:3
           }
         },
+      filters: {
+              dataFormat: (data) => {
+                data = new Date(data)
+                var spe = '/'
+                var nn = data.getFullYear()
+                var mm = data.getMonth() + 1
+                var dd = data.getDate()
+                return nn + spe + mm + spe + dd
+              }
+            },
         methods:{
+
           handleSizeChange(val){
              console.log('handleSizeChange:' + val);
             this.pageSize = val
@@ -82,6 +93,10 @@
           },
             handleEdit(index, row) {
               console.log(index, row);
+              this.$router.push({
+                path:'/editpost',
+                query:{id:row.id}
+              })
             },
             handleDelete(index, row) {
               console.log(index, row);

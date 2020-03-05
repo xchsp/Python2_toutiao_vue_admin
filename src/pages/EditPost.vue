@@ -74,6 +74,7 @@
         },
         data(){
           return {
+            postId:this.$route.query.id,
             token:'Bearer '+ localStorage.getItem('token'),
             form:{
               title:'',
@@ -91,6 +92,7 @@
           }
         },
         mounted(){
+          console.log('postId:'+this.postId)
           this.$axios(
             {
               url:'/category',
@@ -103,6 +105,39 @@
                 })
             }
           )
+
+          // 修改文章
+          if(this.postId)
+          {
+            this.$axios(
+            {
+              url:'/post/'+this.postId,
+              methods:'get'
+            }
+            ).then(res => {
+                  this.form = res.data
+
+                  let newCate = []
+                  res.data.categories.forEach(element=>{
+                    newCate.push(element.id)
+                  })
+
+                  this.form.categories  = newCate
+
+                 let newCover = []
+                  res.data.cover.forEach(element=>{
+                    let obj = {
+                      uid:element.id,
+                      url:this.$fixImgUrl(element.url)
+                    }
+                    newCover.push(obj)
+                  })
+
+                  this.form.cover  = newCover
+
+              }
+            )
+          }
         },
         methods:{
           handleSuccessUploadVideo(res){
@@ -146,7 +181,7 @@
 
             this.form.cover.push(
               {
-                id:res.data.id,
+                uid:res.data.id,
                 url:this.$fixImgUrl(res.data.url)
               }
             )
@@ -154,7 +189,7 @@
           onSubmit(){
             this.$axios(
               {
-                url:'/posts',
+                url:this.postId ? '/update_post/'+ this.postId :'/posts',
                 method:'POST',
                 data:this.form
               }
