@@ -30,14 +30,33 @@
               </el-checkbox-group>
         </el-form-item>
 
+        <el-form-item label="类型">
+               <el-radio-group v-model="form.type">
+                   <el-radio :label = "1">文章</el-radio>
+                   <el-radio :label = "2">视频</el-radio>
+              </el-radio-group>
+        </el-form-item>
+
        <el-form-item>
               <vue-editor
+                v-if="form.type===1"
                 id="editor"
                 :editor-toolbar="customToolbar"
                 useCustomImageHandler
                 @image-added="handleImageAdded"
                 v-model="form.content">
               </vue-editor>
+
+
+              <el-upload
+                v-if="form.type===2"
+                :action="this.$axios.defaults.baseURL+'/upload/'"
+                :headers="{Authorization:token}"
+                :on-success="handleSuccessUploadVideo"
+                :before-upload="beforeUpload"
+              >
+                <el-button type="primary">点击上传</el-button>
+              </el-upload>
         </el-form-item>
 
        <el-form-item>
@@ -86,6 +105,16 @@
           )
         },
         methods:{
+          handleSuccessUploadVideo(res){
+              this.form.content = res.data.url
+          },
+          beforeUpload(file){
+            console.log(file.type)
+            if(file.type.indexOf('video/') !==0)
+            {
+                this.$message.warning('请选择视频文件')
+            }
+          },
           handleImageAdded: function(file, Editor, cursorLocation, resetUploader) {
             console.log('handleImageAdded')
 
